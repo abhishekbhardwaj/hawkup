@@ -1,0 +1,14 @@
+# History control
+shopt -s histappend
+HISTCONTROL=ignoreboth
+HISTSIZE=32768
+HISTFILESIZE="${HISTSIZE}"
+
+# Autocompletion
+[ -f /usr/share/bash-completion/bash_completion ] && source /usr/share/bash-completion/bash_completion || true
+
+# Resolve Hawkup path and set PATH
+HAWKUP_PATH_DEFAULT="$HOME/.local/share/hawkup"
+export HAWKUP_PATH="${HAWKUP_DIR:-$HAWKUP_PATH_DEFAULT}"
+export PATH="./bin:$HOME/.local/bin:$HAWKUP_PATH/bin:$PATH"
+set +h

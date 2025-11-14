@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+HAWKUP_DIR="${HAWKUP_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+export HAWKUP_DIR
+
+sync_configs() {
+  if [ -f "$HOME/.bashrc" ] && ! cmp -s "$HOME/.bashrc" "$HAWKUP_DIR/configs/.bashrc"; then
+    cp "$HOME/.bashrc" "$HOME/.bashrc.bak" || true
+  fi
+  cp "$HAWKUP_DIR/configs/.bashrc" "$HOME/.bashrc"
+
+  if [ -f "$HOME/.inputrc" ] && ! cmp -s "$HOME/.inputrc" "$HAWKUP_DIR/configs/.inputrc"; then
+    cp "$HOME/.inputrc" "$HOME/.inputrc.bak" || true
+  fi
+  cp "$HAWKUP_DIR/configs/.inputrc" "$HOME/.inputrc"
+
+  mkdir -p "$HOME/.config"
+  if [ -d "$HOME/.config/bash" ]; then
+    cp -r "$HOME/.config/bash" "$HOME/.config/bash.bak" || true
+  fi
+  cp -r "$HAWKUP_DIR/configs/bash" "$HOME/.config/bash"
+}
+
+upgrade_apps() {
+  for app in "$HAWKUP_DIR"/install/terminal/apps/*.sh; do
+    bash "$app"
+  done
+}
+
+case "$1" in
+  update)
+    sudo apt-get update -y
+    sudo apt-get upgrade -y
+    ;;
+  upgrade)
+    sudo apt-get update -y
+    sudo apt-get upgrade -y
+    upgrade_apps
+    ;;
+  sync-configs)
+    sync_configs
+    ;;
+  setup-tailscale)
+    echo "Setting up Tailscale..."
+    curl -fsSL https://tailscale.com/install.sh | sh
+    ;;
+  *)
+    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale}"
+    exit 1
+    ;;
+esac

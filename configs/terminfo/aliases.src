@@ -1,0 +1,25 @@
+"""
+Minimal terminfo aliases for modern terminals that might not be
+pre-installed server-side. These inherit xterm-256color capabilities
+to ensure 256-color compatibility and prevent tmux from erroring out.
+
+Note: These are pragmatic fallbacks. If the native terminfo for a
+terminal is present (e.g. from the terminal vendor), that will be used
+instead and this file won’t override it.
+"""
+
+xterm-ghostty|Ghostty terminal (xterm-like, 256 colors),
+  use=xterm-256color,
+
+xterm-kitty|Kitty terminal (xterm-like, 256 colors),
+  use=xterm-256color,
+
+alacritty|Alacritty terminal (xterm-like, 256 colors),
+  use=xterm-256color,
+
+alacritty-direct|Alacritty direct color (fallback to 256),
+  use=xterm-256color,
+
+wezterm|WezTerm (xterm-like, 256 colors),
+  use=xterm-256color,
+
