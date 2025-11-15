@@ -38,7 +38,7 @@ secrets_create_if_missing() {
   local f; f="$(secrets_file)"
   if [ ! -f "$f" ]; then
     umask 177
-    printf '# User secrets (KEY=value)\n' > "$f"
+    printf '# User secrets (export KEY=value)\n' > "$f"
   fi
   secrets_fix_perms
 }
@@ -93,12 +93,12 @@ secrets_set() {
       if ($0 ~ /^[[:space:]]*#/) { print; next }
       # match exact KEY= or export KEY=
       if ($0 ~ "^[[:space:]]*(export[[:space:]]+)?" key "=") {
-        print key "=" val; updated=1; next
+        print "export " key "=" val; updated=1; next
       }
       print
     }
     END {
-      if (!updated) { print key "=" val }
+      if (!updated) { print "export " key "=" val }
     }
   ' "$f" > "$tmp" && mv "$tmp" "$f"
   secrets_fix_perms

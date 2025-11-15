@@ -1,10 +1,6 @@
 source ~/.config/bash/shell
 
-if [ -f "$HOME/.secrets" ]; then
-  set -a
-  . "$HOME/.secrets"
-  set +a
-fi
+[ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
 
 source ~/.config/bash/aliases
 source ~/.config/bash/functions
