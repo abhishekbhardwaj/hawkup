@@ -57,6 +57,9 @@ case "$1" in
     echo "Setting up Tailscale..."
     curl -fsSL https://tailscale.com/install.sh | sh
     ;;
+  install-ai)
+    bash "$HAWKUP_DIR/install/terminal/apps/ai.sh"
+    ;;
   nerdfonts|nerd-fonts|nf)
     subcmd="${2:-help}"
     case "$subcmd" in
@@ -90,7 +93,7 @@ USAGE
     esac
     ;;
   *)
-    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|nerdfonts}"
+    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|install-ai|nerdfonts}"
     exit 1
     ;;
  esac

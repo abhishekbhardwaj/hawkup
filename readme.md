@@ -62,6 +62,7 @@ hawkup update          # apt update/upgrade
 hawkup upgrade         # apt update/upgrade + upgrade terminal apps
 hawkup sync-configs    # re-sync dotfiles from this repo
 hawkup setup-tailscale # install Tailscale
+hawkup install-ai      # install opencode-ai + Claude CLI (requires npm)
 ```
 
 ### Nerd Fonts Management
