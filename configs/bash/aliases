@@ -6,6 +6,8 @@ alias lta='lt -a'
 alias ff="fzf --preview 'batcat --style=numbers --color=always {}'"
 alias fd='fdfind'
 alias cd='z'
+alias tree='eza --tree --icons --git'
+alias tree-all='eza --tree --icons --git -a'
 
 # Directories
 alias ..='cd ..'

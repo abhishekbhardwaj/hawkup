@@ -62,8 +62,28 @@ hawkup update          # apt update/upgrade
 hawkup upgrade         # apt update/upgrade + upgrade terminal apps
 hawkup sync-configs    # re-sync dotfiles from this repo
 hawkup setup-tailscale # install Tailscale
-hawkup install-ai      # install opencode-ai + Claude CLI (requires npm)
+# Deprecated alias; see AI section: hawkup install-ai
 ```
+
+### AI Tools
+
+Install AI tooling via the new subcommand:
+
+```bash
+# Default installs opencode
+hawkup ai install
+
+# Explicitly install opencode (via npm)
+hawkup ai install opencode
+
+# Install Claude Code
+hawkup ai install claude-code
+```
+
+Notes:
+- `opencode` installs the `opencode-ai` npm package. Requires Node.js/npm (e.g., via `mise`).
+- `claude-code` runs: `curl -fsSL https://claude.ai/install.sh | bash`.
+- Legacy command `hawkup install-ai` remains as a deprecated alias and currently installs `opencode`.
 
 ### Secrets
 

@@ -58,8 +58,28 @@ case "$1" in
     echo "Setting up Tailscale..."
     curl -fsSL https://tailscale.com/install.sh | sh
     ;;
-  install-ai)
-    bash "$HAWKUP_DIR/install/terminal/apps/ai.sh"
+  ai)
+    subcmd="${2:-help}"
+    case "$subcmd" in
+      install)
+        name="${3:-opencode}"
+        case "$name" in
+          opencode|opencode-ai|open-code)
+            bash "$HAWKUP_DIR/install/terminal/apps/ai.sh"
+            ;;
+          claude-code|claude)
+            echo "[hawkup:ai] Installing Claude Code..."
+            curl -fsSL https://claude.ai/install.sh | bash
+            ;;
+          *)
+            echo "Usage: $0 ai install <opencode|claude-code>"; exit 1
+            ;;
+        esac
+        ;;
+      *)
+        echo "Usage: $0 ai install <opencode|claude-code>"; exit 1
+        ;;
+    esac
     ;;
   secrets)
     subcmd="${2:-help}"
@@ -73,8 +93,8 @@ case "$1" in
         secrets_set "$name" "$value"
         echo "Set $name in $(secrets_file)"
         echo "Hint: to use it now, run: source ~/.secrets"
-        echo "      or: eval \"\$(hawkup secrets env)\""
-        echo "      or: eval \"\$(hawkup secrets env $name)\""
+        echo "      or: eval \"$(hawkup secrets env)\""
+        echo "      or: eval \"$(hawkup secrets env $name)\""
         ;;
       list)
         secrets_list
@@ -129,7 +149,7 @@ USAGE
     esac
     ;;
   *)
-    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|install-ai|secrets|nerdfonts}"
+    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|ai|secrets|nerdfonts}"
     exit 1
     ;;
  esac
