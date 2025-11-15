@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AVAILABLE_LANGUAGES=("Bun" "Deno" "Elixir" "Go" "Java" "Node.js" "PHP" "Python" "Ruby" "Rust" "Zig")
-DEFAULT_LANGUAGES="Ruby,Bun,Go,Deno,Node.js"
+DEFAULT_LANGUAGES="Bun,Node.js"
 
 # If preset, honor it; otherwise prompt with gum
 if [ -z "${HAWKUP_FIRST_RUN_LANGUAGES//[[:space:]]/}" ]; then
@@ -11,7 +11,7 @@ else
 fi
 
 AVAILABLE_DBS=("MySQL" "PostgreSQL" "Redis")
-DEFAULT_DBS="MySQL,PostgreSQL,Redis"
+DEFAULT_DBS=""
 if [ -z "${HAWKUP_FIRST_RUN_DBS//[[:space:]]/}" ]; then
   export HAWKUP_FIRST_RUN_DBS=$(gum choose "${AVAILABLE_DBS[@]}" --no-limit --selected "$DEFAULT_DBS" --height 3 --header "Select databases (runs in Docker)")
 else
