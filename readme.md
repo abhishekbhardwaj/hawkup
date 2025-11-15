@@ -55,12 +55,65 @@ You will be prompted to reboot at the end so group memberships and shell config 
 
 The `hawkup` helper lives in `~/.local/share/hawkup/bin` and is added to PATH by the shell config.
 
+### System Management
+
 ```bash
 hawkup update          # apt update/upgrade
-hawkup upgrade         # update + upgrade terminal apps
+hawkup upgrade         # apt update/upgrade + upgrade terminal apps
 hawkup sync-configs    # re-sync dotfiles from this repo
 hawkup setup-tailscale # install Tailscale
 ```
+
+### Nerd Fonts Management
+
+Hawkup includes a built-in Nerd Fonts manager for installing and managing patched fonts with icon support.
+
+```bash
+# List available fonts
+hawkup nerdfonts list                    # Lists all available Nerd Fonts from latest release
+hawkup nerdfonts list v3.4.0            # Lists fonts from specific version
+
+# Install fonts
+hawkup nerdfonts install JetBrainsMono   # Install a single font
+hawkup nerdfonts install "JetBrainsMono" "FiraCode" "Hack"  # Install multiple fonts
+
+# Update (force reinstall) fonts
+hawkup nerdfonts update JetBrainsMono    # Force reinstall of a font
+
+# Pin to specific version
+NERDFONTS_VERSION=v3.4.0 hawkup nerdfonts install CascadiaMono
+```
+
+**Font Installation Details:**
+- Fonts are installed to `~/.local/share/fonts/NerdFonts/` by default
+- Each font is installed in its own subdirectory (e.g., `JetBrainsMono/`, `FiraCode/`)
+- Fonts are automatically detected if they already exist (no duplicate downloads)
+- Use `hawkup nerdfonts update` to force reinstall/update fonts
+- Font cache is automatically refreshed after installation (if `fc-cache` is available)
+
+**Customization Options:**
+```bash
+# Change install directory
+NERDFONTS_DIR="/custom/path" hawkup nerdfonts install Hack
+
+# Force reinstall (bypass existing font check)
+NERDFONTS_FORCE=1 hawkup nerdfonts install JetBrainsMono
+
+# Pin to specific release version
+NERDFONTS_VERSION=v3.3.0 hawkup nerdfonts install FiraCode
+```
+
+**Font Name Aliases:**
+The tool automatically normalizes common font name variations:
+- `CaskaydiaMono` → `CascadiaMono`
+- `MesloLGS`, `MesloLGSNF` → `Meslo`
+- `Symbols`, `SymbolsOnly` → `NerdFontsSymbolsOnly`
+
+**Using Nerd Fonts:**
+After installation, configure your terminal emulator to use one of the installed fonts:
+1. Open your terminal preferences/settings
+2. Change the font to one of: JetBrainsMono Nerd Font, FiraCode Nerd Font, Hack Nerd Font, etc.
+3. Icons will now display correctly in tools like `eza --icons`, `lazygit`, `neovim`, and `starship`
 
 ## Manual Install (alternative)
 

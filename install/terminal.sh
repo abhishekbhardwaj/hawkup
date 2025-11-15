@@ -7,7 +7,7 @@ sudo apt upgrade -y
 sudo apt install -y curl git unzip build-essential pkg-config autoconf bison clang rustc pipx \
   libssl-dev libreadline-dev zlib1g-dev libyaml-dev libreadline-dev libncurses5-dev libffi-dev libgdbm-dev libjemalloc2 \
   libvips imagemagick libmagickwand-dev mupdf mupdf-tools \
-  fzf ripgrep bat eza zoxide plocate apache2-utils fd-find software-properties-common
+  fzf ripgrep bat eza zoxide plocate apache2-utils fd-find software-properties-common unzip
 
 # Sync shell configs
 if [ -f "$HOME/.bashrc" ] && ! cmp -s "$HOME/.bashrc" "$HAWKUP_DIR/configs/.bashrc"; then
