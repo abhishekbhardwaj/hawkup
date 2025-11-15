@@ -65,6 +65,16 @@ hawkup setup-tailscale # install Tailscale
 hawkup install-ai      # install opencode-ai + Claude CLI (requires npm)
 ```
 
+### Secrets
+
+Hawkup manages secrets in `~/.secrets` (KEY=value). It is sourced automatically at shell startup.
+
+```bash
+hawkup secrets add OPENAI_API_KEY sk-xxxxx   # prompts if value omitted
+hawkup secrets list                           # lists secret keys (not values)
+hawkup secrets remove OPENAI_API_KEY
+```
+
 ### Nerd Fonts Management
 
 Hawkup includes a built-in Nerd Fonts manager for installing and managing patched fonts with icon support.

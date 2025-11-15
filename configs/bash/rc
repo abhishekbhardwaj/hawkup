@@ -1,4 +1,11 @@
 source ~/.config/bash/shell
+
+if [ -f "$HOME/.secrets" ]; then
+  set -a
+  . "$HOME/.secrets"
+  set +a
+fi
+
 source ~/.config/bash/aliases
 source ~/.config/bash/functions
 source ~/.config/bash/prompt

@@ -30,6 +30,7 @@ upgrade_apps() {
 
 # Shared helpers
 source "$HAWKUP_DIR/install/lib/nerdfonts.sh" 2>/dev/null || true
+source "$HAWKUP_DIR/install/lib/secrets.sh" 2>/dev/null || true
 
 nf_cli_install_fonts() {
   local v="$1"; shift || true
@@ -59,6 +60,33 @@ case "$1" in
     ;;
   install-ai)
     bash "$HAWKUP_DIR/install/terminal/apps/ai.sh"
+    ;;
+  secrets)
+    subcmd="${2:-help}"
+    case "$subcmd" in
+      add)
+        name="$3"; value="$4"
+        if [ -z "$name" ]; then echo "Usage: $0 secrets add NAME [VALUE]"; exit 1; fi
+        if ! secrets_valid_name "$name"; then echo "Invalid secret name: $name"; exit 1; fi
+        secrets_create_if_missing
+        if [ -z "$value" ]; then read -rsp "Value for $name: " value; echo; fi
+        secrets_set "$name" "$value"
+        echo "Set $name in $(secrets_file)"
+        ;;
+      list)
+        secrets_list
+        ;;
+      remove)
+        name="$3"
+        if [ -z "$name" ]; then echo "Usage: $0 secrets remove NAME"; exit 1; fi
+        if ! secrets_valid_name "$name"; then echo "Invalid secret name: $name"; exit 1; fi
+        secrets_remove "$name"
+        echo "Removed $name from $(secrets_file)"
+        ;;
+      *)
+        echo "Usage: $0 secrets {add|list|remove}"; exit 1
+        ;;
+    esac
     ;;
   nerdfonts|nerd-fonts|nf)
     subcmd="${2:-help}"
@@ -93,7 +121,7 @@ USAGE
     esac
     ;;
   *)
-    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|install-ai|nerdfonts}"
+    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|install-ai|secrets|nerdfonts}"
     exit 1
     ;;
  esac
