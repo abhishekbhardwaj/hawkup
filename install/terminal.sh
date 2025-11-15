@@ -28,7 +28,7 @@ cp -r "$HAWKUP_DIR/configs/bash" "$HOME/.config/bash"
 
 # Ensure ~/.secrets exists; back up if present
 [ -f "$HAWKUP_DIR/install/lib/secrets.sh" ] && source "$HAWKUP_DIR/install/lib/secrets.sh"
-secrets_install_ensure
+secrets_create_if_missing
 
 # Load PATH and env for this session
 [ -f "$HOME/.config/bash/shell" ] && source "$HOME/.config/bash/shell"
