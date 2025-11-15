@@ -55,4 +55,6 @@ if [[ -n "$HAWKUP_FIRST_RUN_LANGUAGES" ]]; then
       ;;
     esac
   done
+  # Activate mise to make newly installed tools available in current session
+  eval "$(mise activate bash)"
 fi
