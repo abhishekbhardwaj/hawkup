@@ -28,6 +28,18 @@ upgrade_apps() {
   done
 }
 
+# Shared helpers
+source "$HAWKUP_DIR/install/lib/nerdfonts.sh" 2>/dev/null || true
+
+nf_cli_install_fonts() {
+  local v="$1"; shift || true
+  if [ "$#" -eq 0 ]; then
+    echo "No fonts specified. Try: hawkup nerdfonts list"
+    exit 1
+  fi
+  nf_install_fonts "$v" "$@"
+}
+
 case "$1" in
   update)
     sudo apt-get update -y
@@ -45,8 +57,40 @@ case "$1" in
     echo "Setting up Tailscale..."
     curl -fsSL https://tailscale.com/install.sh | sh
     ;;
+  nerdfonts|nerd-fonts|nf)
+    subcmd="${2:-help}"
+    case "$subcmd" in
+      list)
+        shift 2 || true
+        nf_list_fonts "${1:-$(nf_latest_tag)}"
+        ;;
+      install)
+        shift 2 || true
+        v="${NERDFONTS_VERSION:-$(nf_latest_tag)}"
+        nf_cli_install_fonts "$v" "$@"
+        ;;
+      update)
+        shift 2 || true
+        v="${NERDFONTS_VERSION:-$(nf_latest_tag)}"
+        NERDFONTS_FORCE=1 nf_cli_install_fonts "$v" "$@"
+        ;;
+      *)
+        cat <<USAGE
+Usage: $0 nerdfonts <list|install|update> [args]
+  list [version]             List available fonts (defaults to latest release)
+  install <Font...>          Install specific fonts from latest (set NERDFONTS_VERSION to override)
+  update <Font...>           Reinstall specified fonts (forces overwrite)
+
+Examples:
+  $0 nerdfonts list
+  $0 nerdfonts install "JetBrainsMono" "Meslo"
+  NERDFONTS_VERSION=v3.4.0 $0 nerdfonts install CascadiaMono
+USAGE
+        ;;
+    esac
+    ;;
   *)
-    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale}"
+    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|nerdfonts}"
     exit 1
     ;;
-esac
+ esac

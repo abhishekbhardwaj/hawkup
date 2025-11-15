@@ -33,6 +33,7 @@ You will be prompted to reboot at the end so group memberships and shell config 
 - Databases (Dockerized, optional): Redis, MySQL 8.4, PostgreSQL 16
 - Language runtimes (via `mise`): Ruby (+ Rails), Bun, Deno, Node.js (LTS), Go, PHP (+ Composer), Python, Elixir (Erlang), Rust, Java, Zig (+ ZLS)
 - Terminal apps: Neovim (from upstream tarball) + LazyVim starter and theme; `lazygit`, `lazydocker`, `btop`, `fastfetch`, `gh` (GitHub CLI)
+- Nerd Fonts: JetBrainsMono, FiraCode, Hack (customizable via `NERDFONTS_FONTS`)
 - Tmux: config + TPM (tmux plugin manager) and common plugins
 
 ## During Install
@@ -82,6 +83,17 @@ bash ~/.local/share/hawkup/install.sh
 
 - Non-root: Run as a normal user with `sudo`, not as root, so Docker group membership is applied to your user.
 - Backups: Your original `~/.bashrc`, `~/.inputrc`, and `~/.config/bash` are saved as `.bak` if they existed.
+- APT/dpkg errors: If you see "E: subprocess /usr/bin/dpkg returned an error code (1)" or "no apport report written ... followup error", your APT state is broken from a previous failure. Repair and rerun:
+  ```bash
+  sudo -v
+  sudo dpkg --configure -a
+  sudo apt-get -f install
+  sudo apt-get clean
+  sudo apt-get update
+  sudo apt-get install -y git
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/abhishekbhardwaj/hawkup/main/boot.sh)"
+  ```
+
 
 ## Inspirations
 
