@@ -72,6 +72,9 @@ case "$1" in
         if [ -z "$value" ]; then read -rsp "Value for $name: " value; echo; fi
         secrets_set "$name" "$value"
         echo "Set $name in $(secrets_file)"
+        echo "Hint: to use it now, run: source ~/.secrets"
+        echo "      or: eval \"\$(hawkup secrets env)\""
+        echo "      or: eval \"\$(hawkup secrets env $name)\""
         ;;
       list)
         secrets_list
@@ -82,9 +85,14 @@ case "$1" in
         if ! secrets_valid_name "$name"; then echo "Invalid secret name: $name"; exit 1; fi
         secrets_remove "$name"
         echo "Removed $name from $(secrets_file)"
+        echo "Hint: to remove from current shell, run: unset $name"
+        ;;
+      env)
+        shift 2 || true
+        secrets_env "$@"
         ;;
       *)
-        echo "Usage: $0 secrets {add|list|remove}"; exit 1
+        echo "Usage: $0 secrets {add|list|remove|env}"; exit 1
         ;;
     esac
     ;;

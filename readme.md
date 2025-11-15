@@ -73,6 +73,15 @@ Hawkup manages secrets in `~/.secrets` (KEY=value). It is sourced automatically 
 hawkup secrets add OPENAI_API_KEY sk-xxxxx   # prompts if value omitted
 hawkup secrets list                           # lists secret keys (not values)
 hawkup secrets remove OPENAI_API_KEY
+
+# Print export lines for all or specific secrets
+hawkup secrets env                  # prints all exports
+hawkup secrets env OPENAI_API_KEY   # prints one export
+
+# Apply immediately to current shell
+source ~/.secrets
+# or
+eval "$(hawkup secrets env)"
 ```
 
 ### Nerd Fonts Management

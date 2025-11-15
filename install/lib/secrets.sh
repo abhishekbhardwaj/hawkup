@@ -103,3 +103,32 @@ secrets_set() {
   ' "$f" > "$tmp" && mv "$tmp" "$f"
   secrets_fix_perms
 }
+
+# Print export lines for secrets. Usage: secrets_env [NAME...]
+secrets_env() {
+  local f; f="$(secrets_file)"
+  [ -f "$f" ] || return 0
+  awk -v names="$*" '
+    BEGIN {
+      split(names, arr, /[[:space:]]+/)
+      want_any = 0
+      for (i in arr) {
+        if (arr[i] != "") { want[arr[i]] = 1; want_any = 1 }
+      }
+    }
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*$/ { next }
+    {
+      line = $0
+      sub(/^[[:space:]]*/, "", line)
+      sub(/^export[[:space:]]+/, "", line)
+      if (match(line, /^([A-Z_][A-Z0-9_]*)=(.*)$/, m)) {
+        key = m[1]
+        val = m[2]
+        if (!want_any || (key in want)) {
+          print "export " key "=" val
+        }
+      }
+    }
+  ' "$f"
+}
