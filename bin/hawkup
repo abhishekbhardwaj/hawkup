@@ -22,6 +22,36 @@ sync_configs() {
   cp -r "$HAWKUP_DIR/configs/bash" "$HOME/.config/bash"
 }
 
+run_migrations() {
+  (
+    cd "$HAWKUP_DIR"
+    last_updated_at=$(git log -1 --format=%cd --date=unix)
+    git pull
+
+    shopt -s nullglob
+    migration_files=(migrations/*.sh)
+    shopt -u nullglob
+
+    for file in "${migration_files[@]}"; do
+      filename=$(basename "$file")
+      migrate_at="${filename%.sh}"
+
+      case "$migrate_at" in
+        (*[!0-9]*|'')
+          echo "Skipping non-numeric migration: $filename" >&2
+          continue
+          ;;
+      esac
+
+      if [ "$migrate_at" -gt "$last_updated_at" ]; then
+        echo "Running migration for $migrate_at"
+        # shellcheck source=/dev/null
+        source "$file"
+      fi
+    done
+  )
+}
+
 upgrade_apps() {
   for app in "$HAWKUP_DIR"/install/terminal/apps/*.sh; do
     bash "$app"
@@ -50,6 +80,9 @@ case "$1" in
     sudo apt-get update -y
     sudo apt-get upgrade -y
     upgrade_apps
+    ;;
+  migrate)
+    run_migrations
     ;;
   sync-configs)
     sync_configs
@@ -149,7 +182,7 @@ USAGE
     esac
     ;;
   *)
-    echo "Usage: $0 {update|upgrade|sync-configs|setup-tailscale|ai|secrets|nerdfonts}"
+    echo "Usage: $0 {update|upgrade|migrate|sync-configs|setup-tailscale|ai|secrets|nerdfonts}"
     exit 1
     ;;
  esac
