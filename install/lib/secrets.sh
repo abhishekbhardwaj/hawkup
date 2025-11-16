@@ -37,8 +37,11 @@ secrets_backup_rotate() {
 secrets_create_if_missing() {
   local f; f="$(secrets_file)"
   if [ ! -f "$f" ]; then
+    local _old_umask
+    _old_umask=$(umask)
     umask 177
     printf '# User secrets (export KEY=value)\n' > "$f"
+    umask "$_old_umask"
   fi
   secrets_fix_perms
 }

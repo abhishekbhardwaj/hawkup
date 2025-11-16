@@ -15,6 +15,15 @@ safe_term() {
   fi
 }
 
+normalize_tpm_perms() {
+  local tpm="$HOME/.tmux/plugins/tpm"
+  [ -d "$tpm" ] || return 0
+  chmod -R u+rwX "$tpm" 2>/dev/null || true
+  [ -d "$tpm/bin" ] && chmod u+x "$tpm"/bin/* 2>/dev/null || true
+  [ -d "$tpm/scripts" ] && chmod u+x "$tpm"/scripts/* 2>/dev/null || true
+  [ -f "$tpm/tpm" ] && chmod u+x "$tpm/tpm" 2>/dev/null || true
+}
+
 # Function to setup tmux and its plugins
 setup_tmux() {
     echo "Setting up tmux and its plugins..."
@@ -22,6 +31,9 @@ setup_tmux() {
     if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
         git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm" >/dev/null 2>&1 || true
     fi
+
+    # Normalize permissions in case a restrictive umask was active earlier
+    normalize_tpm_perms
 
     # Load config if possible; be resilient
     if command -v tmux >/dev/null 2>&1; then
@@ -40,8 +52,12 @@ install_tmux_plugins() {
       echo "tmux not found; skipping plugin install." >&2
       return 0
     fi
+
+    # Auto-fix TPM permissions and validate installer presence
+    normalize_tpm_perms
+
     if [ ! -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ]; then
-      echo "TPM not found; skipping plugin install." >&2
+      echo "TPM not found or not executable; skipping plugin install." >&2
       return 0
     fi
 
