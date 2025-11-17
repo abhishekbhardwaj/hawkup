@@ -4,6 +4,25 @@ set -e
 HAWKUP_DIR="${HAWKUP_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 export HAWKUP_DIR
 
+ensure_ssh_service() {
+  local svc=""
+  for candidate in ssh.service sshd.service; do
+    if systemctl list-unit-files "$candidate" >/dev/null 2>&1; then
+      svc="$candidate"
+      break
+    fi
+  done
+
+  if [ -z "$svc" ]; then
+    echo "Could not find ssh or sshd systemd service on this system." >&2
+    exit 1
+  fi
+
+  echo "Enabling and starting $svc..."
+  sudo systemctl enable --now "$svc"
+  sudo systemctl status "$svc" --no-pager || true
+}
+
 sync_configs() {
   if [ -f "$HOME/.bashrc" ] && ! cmp -s "$HOME/.bashrc" "$HAWKUP_DIR/configs/.bashrc"; then
     cp "$HOME/.bashrc" "$HOME/.bashrc.bak" || true
@@ -90,6 +109,9 @@ case "$1" in
   setup-tailscale)
     echo "Setting up Tailscale..."
     curl -fsSL https://tailscale.com/install.sh | sh
+    ;;
+  enable-ssh)
+    ensure_ssh_service
     ;;
   ai)
     subcmd="${2:-help}"
@@ -182,7 +204,7 @@ USAGE
     esac
     ;;
   *)
-    echo "Usage: $0 {update|upgrade|migrate|sync-configs|setup-tailscale|ai|secrets|nerdfonts}"
+    echo "Usage: $0 {update|upgrade|migrate|sync-configs|setup-tailscale|enable-ssh|ai|secrets|nerdfonts}"
     exit 1
     ;;
  esac

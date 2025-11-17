@@ -158,6 +158,7 @@ hawkup upgrade         # apt-get update/upgrade + rerun terminal app installers
 hawkup sync-configs    # re-sync dotfiles from this repo (backs up current)
 hawkup migrate         # run repo migrations (migrations/*.sh)
 hawkup setup-tailscale # install Tailscale (official script)
+hawkup enable-ssh      # detect ssh/sshd service, enable it, and start it now
 ```
 
 ### Nerd Fonts (CLI)
