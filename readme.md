@@ -28,13 +28,14 @@ You will be prompted to reboot at the end so group memberships and shell config 
 ## What It Installs
 
 - Core terminal tools: `curl`, `git`, `unzip`, build essentials, `fzf`, `ripgrep`, `bat`, `eza`, `zoxide`, `plocate`, `fd` (via `fd-find`), ImageMagick, libvips, and more
-- Shell config: replaces `~/.bashrc` and `~/.inputrc` (backs up existing files with `.bak`), and syncs `~/.config/bash/*` (aliases, prompt, functions)
+- Shell config: replaces `~/.bashrc` and `~/.inputrc` (backs up existing files with `.bak`), and syncs `~/.config/bash/*` (aliases, prompt, functions). Prompt via Starship.
 - Docker: official Docker engine + Buildx/Compose, Docker group membership, and sane log rotation
 - Databases (Dockerized, optional): Redis, MySQL 8.4, PostgreSQL 16
 - Language runtimes (via `mise`): Ruby (+ Rails), Bun, Deno, Node.js (LTS), Go, PHP (+ Composer), Python, Elixir (Erlang), Rust, Java, Zig (+ ZLS)
-- Terminal apps: Neovim (from upstream tarball) + LazyVim starter and theme; `lazygit`, `lazydocker`, `btop`, `fastfetch`, `gh` (GitHub CLI)
+- Terminal apps: Neovim (from upstream tarball) + LazyVim starter and theme; `lazygit`, `lazydocker`, `btop`, `fastfetch`, `gh` (GitHub CLI), AI (`opencode`, `claude-code`).
 - Nerd Fonts: JetBrainsMono, FiraCode, Hack (customizable via `NERDFONTS_FONTS`)
-- Tmux: config + TPM (tmux plugin manager) and common plugins
+- Tmux: config + TPM (tmux plugin manager) and common plugins.
+- `hawkup` binary that lets you update and upgrade to the latest version of Hawkup. Lets you install `NerdFonts`, install Tailscale and also manage Environment Variables via the `secrets` command.
 
 ## During Install
 
@@ -52,6 +53,73 @@ You will be prompted to reboot at the end so group memberships and shell config 
   - `hawkup` is on PATH (provided by `~/.config/bash/shell`)
   - `docker run hello-world` works without `sudo`
 
+## Manual Install (alternative)
+
+```bash
+# 1) Clone to the expected location
+git clone https://github.com/abhishekbhardwaj/hawkup.git ~/.local/share/hawkup
+
+# 2) Start the installer
+bash ~/.local/share/hawkup/install.sh
+```
+
+## Requirements
+
+- Ubuntu 24.04+ (checked during install)
+- x86 CPU (x86_64/i686); ARM is not supported yet
+- Internet access (downloads packages and upstream binaries)
+- `sudo` privileges
+
+## Headless / Noninteractive Install
+
+You can run Hawkup without any interactive prompts by pre-setting a few environment variables and then invoking the normal installer. This is useful for servers, CI images, or provisioning tools.
+
+Example using the bootstrapper:
+
+```bash
+HAWKUP_USER_NAME="Jane Doe" \
+HAWKUP_USER_EMAIL="jane@example.com" \
+HAWKUP_FIRST_RUN_LANGUAGES="Bun,Node.js,Rust" \
+HAWKUP_FIRST_RUN_DBS="PostgreSQL,Redis" \
+NERDFONTS_FONTS="JetBrainsMono FiraCode" \
+HAWKUP_SKIP_REBOOT=1 \
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/abhishekbhardwaj/hawkup/main/boot.sh)"
+```
+
+If you have already cloned the repo:
+
+```bash
+export HAWKUP_DIR="$HOME/.local/share/hawkup"  # or your clone path
+
+export HAWKUP_USER_NAME="Jane Doe"
+export HAWKUP_USER_EMAIL="jane@example.com"
+
+export HAWKUP_FIRST_RUN_LANGUAGES="Bun,Node.js,Rust"   # Bun, Deno, Elixir, Go, Java, Node.js, PHP, Python, Ruby, Rust, Zig
+export HAWKUP_FIRST_RUN_DBS="MySQL,PostgreSQL,Redis"   # any subset
+
+export NERDFONTS_FONTS="JetBrainsMono FiraCode Hack"   # space-separated font names
+# Optional: export NERDFONTS_VERSION=v3.4.0            # pin Nerd Fonts release
+# Optional: export HAWKUP_SKIP_NERDFONTS=1             # skip Nerd Fonts step entirely
+# Optional: export HAWKUP_SKIP_TMUX=1                  # skip tmux + TPM plugins
+# Optional: export HAWKUP_SKIP_REBOOT=1                # do not reboot at the end
+
+bash "$HAWKUP_DIR/install.sh"
+```
+
+Installer knobs (can all be set via `export`):
+
+- `HAWKUP_DIR`: path where the repo lives. Defaults to `~/.local/share/hawkup` (used by both installer and `bin/hawkup`).
+- `HAWKUP_USER_NAME` / `HAWKUP_USER_EMAIL`: git identity used by `install/terminal/base/git.sh`. If unset, you are prompted once via `gum`.
+- `HAWKUP_FIRST_RUN_LANGUAGES`: comma- or space-separated list of languages to install via `mise`. Valid values: `Bun`, `Deno`, `Elixir`, `Go`, `Java`, `Node.js`, `PHP`, `Python`, `Ruby`, `Rust`, `Zig`.
+- `HAWKUP_FIRST_RUN_DBS`: comma-separated list of databases (`MySQL`, `PostgreSQL`, `Redis`). Controls which Docker database containers are created.
+- `NERDFONTS_FONTS`: space-separated font names to install (e.g. `JetBrainsMono FiraCode Hack`). If explicitly set to an empty string (`NERDFONTS_FONTS=""`), the Nerd Fonts install step is skipped.
+- `NERDFONTS_VERSION`: Nerd Fonts release tag (e.g. `v3.4.0`). Defaults to the latest release if unset.
+- `NERDFONTS_DIR`: directory where fonts are installed. Defaults to `~/.local/share/fonts/NerdFonts`.
+- `NERDFONTS_FORCE`: set to `1` to force reinstalling fonts even if they already exist in `NERDFONTS_DIR`.
+- `HAWKUP_SKIP_NERDFONTS`: set to `1` to skip Nerd Fonts installation entirely.
+- `HAWKUP_SKIP_TMUX`: set to `1` to skip tmux installation and TPM plugin bootstrap (handy in pure server/CI environments).
+- `HAWKUP_SKIP_REBOOT`: set to `1` to suppress the final reboot prompt at the end of the installer.
+
 ## CLI
 
 The `hawkup` helper lives in `~/.local/share/hawkup/bin` and is added to PATH by the shell config.
@@ -65,7 +133,8 @@ hawkup sync-configs    # re-sync dotfiles from this repo (backs up current)
 hawkup migrate         # run repo migrations
 hawkup nerdfonts ...   # manage Nerd Fonts (see below)
 hawkup setup-tailscale # install Tailscale
-# Deprecated alias; see AI section: hawkup install-ai
+hawkup ai              # install ai tools
+hawkup secrets         # Environment Variable Management
 ```
 
 ### AI Tools
@@ -86,7 +155,6 @@ hawkup ai install claude-code
 Notes:
 - `opencode` installs the `opencode-ai` npm package. Requires Node.js/npm (e.g., via `mise`).
 - `claude-code` runs: `curl -fsSL https://claude.ai/install.sh | bash`.
-- Legacy command `hawkup install-ai` remains as a deprecated alias and currently installs `opencode`.
 
 ### Secrets
 
@@ -158,93 +226,6 @@ After installation, configure your terminal emulator to use one of the installed
 2. Change the font to one of: JetBrainsMono Nerd Font, FiraCode Nerd Font, Hack Nerd Font, etc.
 3. Icons will now display correctly in tools like `eza --icons`, `lazygit`, `neovim`, and `starship`
 
-## Manual Install (alternative)
-
-```bash
-# 1) Clone to the expected location
-git clone https://github.com/abhishekbhardwaj/hawkup.git ~/.local/share/hawkup
-
-# 2) Start the installer
-bash ~/.local/share/hawkup/install.sh
-```
-
-## Requirements
-
-- Ubuntu 24.04+ (checked during install)
-- x86 CPU (x86_64/i686); ARM is not supported yet
-- Internet access (downloads packages and upstream binaries)
-- `sudo` privileges
-
-## Troubleshooting & Notes
-
-- Non-root: Run as a normal user with `sudo`, not as root, so Docker group membership is applied to your user.
-- Backups: Your original `~/.bashrc`, `~/.inputrc`, and `~/.config/bash` are saved as `.bak` if they existed. If you later run `hawkup sync-configs`, your current versions are backed up again before re-applying the repo defaults.
-- APT/dpkg errors: If you see "E: subprocess /usr/bin/dpkg returned an error code (1)" or "no apport report written ... followup error", your APT state is broken from a previous failure. Repair and rerun:
-  ```bash
-  sudo -v
-  sudo dpkg --configure -a
-  sudo apt-get -f install
-  sudo apt-get clean
-  sudo apt-get update
-  sudo apt-get install -y git
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/abhishekbhardwaj/hawkup/main/boot.sh)"
-  ```
-
-## Headless / Noninteractive Install
-
-You can run Hawkup without any interactive prompts by pre-setting a few environment variables and then invoking the normal installer. This is useful for servers, CI images, or provisioning tools.
-
-Example using the bootstrapper:
-
-```bash
-HAWKUP_USER_NAME="Jane Doe" \
-HAWKUP_USER_EMAIL="jane@example.com" \
-HAWKUP_FIRST_RUN_LANGUAGES="Bun,Node.js,Rust" \
-HAWKUP_FIRST_RUN_DBS="PostgreSQL,Redis" \
-NERDFONTS_FONTS="JetBrainsMono FiraCode" \
-HAWKUP_SKIP_REBOOT=1 \
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/abhishekbhardwaj/hawkup/main/boot.sh)"
-```
-
-If you have already cloned the repo:
-
-```bash
-export HAWKUP_DIR="$HOME/.local/share/hawkup"  # or your clone path
-
-export HAWKUP_USER_NAME="Jane Doe"
-export HAWKUP_USER_EMAIL="jane@example.com"
-
-export HAWKUP_FIRST_RUN_LANGUAGES="Bun,Node.js,Rust"   # Bun, Deno, Elixir, Go, Java, Node.js, PHP, Python, Ruby, Rust, Zig
-export HAWKUP_FIRST_RUN_DBS="MySQL,PostgreSQL,Redis"   # any subset
-
-export NERDFONTS_FONTS="JetBrainsMono FiraCode Hack"   # space-separated font names
-# Optional: export NERDFONTS_VERSION=v3.4.0            # pin Nerd Fonts release
-# Optional: export HAWKUP_SKIP_NERDFONTS=1             # skip Nerd Fonts step entirely
-# Optional: export HAWKUP_SKIP_TMUX=1                  # skip tmux + TPM plugins
-# Optional: export HAWKUP_SKIP_REBOOT=1                # do not reboot at the end
-
-bash "$HAWKUP_DIR/install.sh"
-```
-
-Installer knobs (can all be set via `export`):
-
-- `HAWKUP_DIR`: path where the repo lives. Defaults to `~/.local/share/hawkup` (used by both installer and `bin/hawkup`).
-- `HAWKUP_USER_NAME` / `HAWKUP_USER_EMAIL`: git identity used by `install/terminal/base/git.sh`. If unset, you are prompted once via `gum`.
-- `HAWKUP_FIRST_RUN_LANGUAGES`: comma- or space-separated list of languages to install via `mise`. Valid values: `Bun`, `Deno`, `Elixir`, `Go`, `Java`, `Node.js`, `PHP`, `Python`, `Ruby`, `Rust`, `Zig`.
-- `HAWKUP_FIRST_RUN_DBS`: comma-separated list of databases (`MySQL`, `PostgreSQL`, `Redis`). Controls which Docker database containers are created.
-- `NERDFONTS_FONTS`: space-separated font names to install (e.g. `JetBrainsMono FiraCode Hack`). If explicitly set to an empty string (`NERDFONTS_FONTS=""`), the Nerd Fonts install step is skipped.
-- `NERDFONTS_VERSION`: Nerd Fonts release tag (e.g. `v3.4.0`). Defaults to the latest release if unset.
-- `NERDFONTS_DIR`: directory where fonts are installed. Defaults to `~/.local/share/fonts/NerdFonts`.
-- `NERDFONTS_FORCE`: set to `1` to force reinstalling fonts even if they already exist in `NERDFONTS_DIR`.
-- `HAWKUP_SKIP_NERDFONTS`: set to `1` to skip Nerd Fonts installation entirely.
-- `HAWKUP_SKIP_TMUX`: set to `1` to skip tmux installation and TPM plugin bootstrap (handy in pure server/CI environments).
-- `HAWKUP_SKIP_REBOOT`: set to `1` to suppress the final reboot prompt at the end of the installer.
-- `SECRETS_FILE`: optional path to the secrets file used by `hawkup secrets`. Defaults to `~/.secrets`.
-
-## Inspirations
-
-- Omakub: https://github.com/basecamp/omakub
-
 ## Architecture
 
 - `boot.sh`: remote entrypoint used by the curl one-liner. Ensures apt/dpkg are in a sane state, installs `git`, clones the repo into `~/.local/share/hawkup`, and then sources `install.sh`.
@@ -268,3 +249,22 @@ Installer knobs (can all be set via `export`):
 - CLI (`bin/hawkup`):
   - Provides `update`, `upgrade`, `migrate`, `sync-configs`, `setup-tailscale`, `ai`, `secrets`, and `nerdfonts` subcommands.
   - Treats the clone directory as `HAWKUP_DIR` (defaulting to `~/.local/share/hawkup`) and reuses the same libraries as the installer so behaviors stay consistent over time.
+
+## Troubleshooting & Notes
+
+- Non-root: Run as a normal user with `sudo`, not as root, so Docker group membership is applied to your user.
+- Backups: Your original `~/.bashrc`, `~/.inputrc`, and `~/.config/bash` are saved as `.bak` if they existed. If you later run `hawkup sync-configs`, your current versions are backed up again before re-applying the repo defaults.
+- APT/dpkg errors: If you see "E: subprocess /usr/bin/dpkg returned an error code (1)" or "no apport report written ... followup error", your APT state is broken from a previous failure. Repair and rerun:
+  ```bash
+  sudo -v
+  sudo dpkg --configure -a
+  sudo apt-get -f install
+  sudo apt-get clean
+  sudo apt-get update
+  sudo apt-get install -y git
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/abhishekbhardwaj/hawkup/main/boot.sh)"
+  ```
+
+## Inspirations
+
+- Omakub: https://github.com/basecamp/omakub

@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
 # Secrets management helpers
-# Default secrets file can be overridden with SECRETS_FILE
 secrets_file() {
-  if [ -n "${SECRETS_FILE:-}" ]; then
-    printf '%s' "$SECRETS_FILE"
-  else
-    printf '%s' "$HOME/.secrets"
-  fi
+  # Always use $HOME/.secrets as the secrets file
+  printf '%s' "$HOME/.secrets"
 }
 
 secrets_fix_perms() {
