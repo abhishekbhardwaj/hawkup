@@ -6,9 +6,13 @@ Hawkup turns a fresh Ubuntu machine into a modern, terminal‑focused developmen
 - **Architecture:** x86 (`x86_64` / `i686`) only (checked during install)
 - **Scope:** terminal and CLI tooling only (no desktop apps)
 
-> Run as a regular sudo-enabled user on a fresh system.
+![Hawkup dashboard preview](assets/hawkup.png)
+
+> Feel free to dig into the source code to see how things work. Will add more detailed documentation shortly.
 
 ## Quick Start
+
+> Run as a regular sudo-enabled user on a fresh system.
 
 From a fresh Ubuntu 24.04+ shell:
 
