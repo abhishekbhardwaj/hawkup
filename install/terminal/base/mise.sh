@@ -37,6 +37,7 @@ if [[ -n "$HAWKUP_FIRST_RUN_LANGUAGES" ]]; then
       ;;
     Python)
       mise use --global python@latest
+      curl -LsSf https://astral.sh/uv/install.sh | sh
       ;;
     Elixir)
       mise use --global erlang@latest
